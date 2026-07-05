@@ -29,6 +29,7 @@ This repository documents not only the solution for each lab, but also the conce
 | Lab | Difficulty | Vulnerability | Status |
 |------|------------|---------------|--------|
 | Lab 01 - Unprotected Admin Functionality | Apprentice | Unprotected Admin Functionality | ✅ |
+| Lab 02 - Unprotected Admin Functionality with Unpredictable URL  |  Apprentice |  Unprotected Admin Functionality with Unpredictable URL | ✅ |
 
 ---
 
@@ -36,6 +37,7 @@ This repository documents not only the solution for each lab, but also the conce
 
 - Reconnaissance
 - Content Discovery
+- Source Code Review
 - Burp Suite
 - FFUF
 - Access Control Testing
@@ -48,12 +50,22 @@ This repository documents not only the solution for each lab, but also the conce
 
 ```text
 Broken_Access_Control/
-├── Concepts.md
 ├── README.md
-└── Lab_01_Unprotected_Admin_Functionality/
+├── Concepts.md
+├── Lab_01_Unprotected_Admin_Functionality/
+│   ├── Writeup.md
+│   ├── Report.md
+│   └── Screenshots/
+│       ├── 01-robots.png
+│       ├── 02-admin-panel.png
+│       └── 03-delete-user.png
+└── Lab_02_Unprotected_Admin_Functionality_with_Unpredictable_URL/
     ├── Writeup.md
     ├── Report.md
     └── Screenshots/
+        ├── 01_Source_Code.png
+        ├── 02_Admin_Panel.png
+        └── 03_User_Deleted.png
 ```
 
 ---
