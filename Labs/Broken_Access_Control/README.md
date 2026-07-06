@@ -30,6 +30,7 @@ This repository documents not only the solution for each lab, but also the conce
 |------|------------|---------------|--------|
 | Lab 01 - Unprotected Admin Functionality | Apprentice | Unprotected Admin Functionality | ✅ |
 | Lab 02 - Unprotected Admin Functionality with Unpredictable URL  |  Apprentice |  Unprotected Admin Functionality with Unpredictable URL | ✅ |
+| Lab 03 - User role controlled by request parameter | Apprentice | User role controlled by request parameter | ✅ |
 
 ---
 
@@ -52,6 +53,7 @@ This repository documents not only the solution for each lab, but also the conce
 Broken_Access_Control/
 ├── README.md
 ├── Concepts.md
+├── Playbook.md
 ├── Lab_01_Unprotected_Admin_Functionality/
 │   ├── Writeup.md
 │   ├── Report.md
@@ -59,13 +61,22 @@ Broken_Access_Control/
 │       ├── 01-robots.png
 │       ├── 02-admin-panel.png
 │       └── 03-delete-user.png
-└── Lab_02_Unprotected_Admin_Functionality_with_Unpredictable_URL/
-    ├── Writeup.md
-    ├── Report.md
-    └── Screenshots/
-        ├── 01_Source_Code.png
-        ├── 02_Admin_Panel.png
-        └── 03_User_Deleted.png
+├── Lab_02_Unprotected_Admin_Functionality_with_Unpredictable_URL/
+|   ├── Writeup.md
+|   ├── Report.md
+|   └── Screenshots/
+|       ├── 01_Source_Code.png
+|       ├── 02_Admin_Panel.png
+|       └── 03_User_Deleted.png
+├── Lab_03_User_role_controlled_by_request_parameter/
+|   ├── Writeup.md
+|   ├── Report.md
+|   └── Screenshots/
+|       ├── 01_Admin_Cookie.png
+|       ├── 02_Admin_True.png
+|       ├── 03_Cookie_Manipulation.png
+|       ├── 04_Admin_Panel.png
+|       └── 05_Delete_Carlos.png
 ```
 
 ---
