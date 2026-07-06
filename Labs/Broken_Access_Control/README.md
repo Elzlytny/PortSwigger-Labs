@@ -31,6 +31,7 @@ This repository documents not only the solution for each lab, but also the conce
 | Lab 01 - Unprotected Admin Functionality | Apprentice | Unprotected Admin Functionality | ✅ |
 | Lab 02 - Unprotected Admin Functionality with Unpredictable URL  |  Apprentice |  Unprotected Admin Functionality with Unpredictable URL | ✅ |
 | Lab 03 - User role controlled by request parameter | Apprentice | User role controlled by request parameter | ✅ |
+| Lab 04 - User role can be modified in user profile | Apprentice | User role can be modified in user profile | ✅ |
 
 ---
 
@@ -53,7 +54,7 @@ This repository documents not only the solution for each lab, but also the conce
 Broken_Access_Control/
 ├── README.md
 ├── Concepts.md
-├── Playbook.md
+├── BAC_Playbook.md
 ├── Lab_01_Unprotected_Admin_Functionality/
 │   ├── Writeup.md
 │   ├── Report.md
@@ -75,6 +76,15 @@ Broken_Access_Control/
 |       ├── 01_Admin_Cookie.png
 |       ├── 02_Admin_True.png
 |       ├── 03_Cookie_Manipulation.png
+|       ├── 04_Admin_Panel.png
+|       └── 05_Delete_Carlos.png
+├── Lab_04_User_role_can_be_modified_in_user_profile/
+|   ├── Writeup.md
+|   ├── Report.md
+|   └── Screenshots/
+|       ├── 01_RoleId_Found.png
+|       ├── 02_Add_RoleId.png
+|       ├── 03_Edit_RoleId_In_Request.png
 |       ├── 04_Admin_Panel.png
 |       └── 05_Delete_Carlos.png
 ```
