@@ -1,250 +1,230 @@
-# Broken Access Control
+# 🔐 Broken Access Control
 
-تخيل إنك فاتح تطبيق نظام بنكي بحساب مستخدم عادي، ولاحظت إن الأدمن يقدر يوافق على طلبات القروض.
+تخيل إنك فاتح تطبيق بنك. 🏦
 
-طيب... إيه اللي هيحصل لو حاولت توصل مباشرة للـ (`Endpoint`) اللي الأدمن بيستخدمها؟
+بعد ما سجلت دخولك، قدرت تشوف حسابك، تحول فلوس، وتراجع معاملاتك.
 
-هل التطبيق هيسمحلك تنفذ الـ (`Request`)؟ ولا هيمنعه بناءً على الصلاحيات المسموح بيها لحسابك؟
+لكن إيه اللي هيحصل لو حاولت:
 
-لما أي مستخدم يحاول يوصل لـ (`Resource`) معينة أو ينفذ (`Action`) داخل التطبيق، فالمفروض إن التطبيق يسأل نفسه شوية أسئلة قبل ما يقرر إذا كان هيسمح بالطلب أو هيمنعه.
+- 👤 تشوف حساب عميل تاني؟
+- 👑 تدخل لوحة تحكم الأدمن؟
+- 💰 توافق على قرض مع إنك مستخدم عادي؟
+- 🛒 تعدل على طلب كنت دفعت تمنه بالفعل؟
 
-1. **Authentication** – أنت مين؟
-2. **Authorization** – إيه الصلاحيات المسموحلك بيها؟
-3. **Access Control** – هل الـ (`Action`) اللي بتحاول تنفذه ضمن الصلاحيات دي؟
-4. **Session Management** – هل الـ (`Request`) ده تابع لنفس الـ (`User`) اللي سجل دخوله قبل كده؟
+المفروض إن التطبيق يمنع كل المحاولات دي.
 
-لو التطبيق فشل في أي خطوة من الخطوات دي، فمن الممكن تظهر ثغرات أمنية. وفي الجزء ده هنركز على **Broken Access Control**، وهي الثغرة اللي بتحصل لما التطبيق يفشل في تطبيق صلاحيات المستخدم بشكل صحيح.
+وده بالظبط دور **Access Control**.
 
----
+لما أي مستخدم يحاول يوصل لـ **Resource** أو ينفذ **Action** داخل التطبيق، السيرفر لازم يجاوب على شوية أسئلة قبل ما يسمح بالـ **Request**.
 
-# Types of Access Control
+1. 🔑 **Authentication** — مين المستخدم؟
+2. 🛡️ **Authorization** — إيه الصلاحيات المسموح بيها؟
+3. 🚦 **Access Control** — هل الـ Action دي ضمن صلاحياته؟
+4. 🍪 **Session Management** — هل الـ Request تابع لنفس المستخدم اللي سجل دخوله؟
 
-طيب إيه اللي إحنا أصلاً بنحاول نحميه؟ أو بمعنى أصح، إيه أنواع الـ **Access Control**؟
-
-## 1. Vertical Access Control
-
-في النوع ده بنحاول نمنع المستخدم من الوصول لصلاحيات أو وظائف خاصة بمستخدم له دور مختلف عنه، زي الأدمن واليوزر العادي.
-
----
-
-## 2. Horizontal Access Control
-
-هنا بنحاول نمنع المستخدم من الوصول إلى الـ (`Resources`) الخاصة بمستخدم تاني من نفس النوع، زي إن الاتنين يكونوا مستخدمين عاديين أو الاتنين أدمن.
+لو التطبيق فشل في تطبيق أي خطوة من الخطوات دي، فهنا بتظهر ثغرات **Broken Access Control**.
 
 ---
 
-## 3. Context-dependent Access Control
+# 🛡️ Types of Access Control
 
-هنا بنحاول نمنع المستخدم من تنفيذ أكشن معين بناءً على حالة التطبيق أو تفاعل المستخدم معاه.
+طيب...
+
+إيه اللي التطبيق بيحاول يحميه أصلاً؟
+
+بشكل عام فيه 3 أنواع رئيسية من الـ **Access Control**.
+
+---
+
+## ⬆️ 1. Vertical Access Control
+
+وده بيمنع المستخدم من الوصول لوظائف أو صلاحيات خاصة بدور أعلى منه.
+
+أمثلة:
+
+- User ➜ Admin
+- Employee ➜ Manager
+
+---
+
+## ↔️ 2. Horizontal Access Control
+
+وده بيمنع المستخدم من الوصول لبيانات مستخدم تاني عنده نفس مستوى الصلاحيات.
 
 مثال:
 
-مينفعش بعد ما تدفع ترجع تعدل في الطلبية أو تضيف منتجات بنفس المبلغ اللي دفعته، لأن التطبيق لازم يفرض ترتيب معين للخطوات.
+- User A يحاول يشوف بيانات User B.
 
 ---
 
-لو قدرت أتجاوز أو أكسر الـ **Access Control**، فأنا حققت **Unauthorized Access**، وفي بعض الحالات ده بيؤدي إلى **Privilege Escalation**.
+## 🔄 3. Context-dependent Access Control
+
+وده بيعتمد على حالة التطبيق أو ترتيب تنفيذ العمليات.
+
+مثال:
+
+بعد ما تدفع الطلب...
+
+مينفعش ترجع تعدل الكمية أو تضيف منتجات بنفس السعر القديم، لأن التطبيق لازم يفرض ترتيب معين للخطوات.
 
 ---
 
-# Common Broken Access Control Scenarios
+💡 لو قدرت أتجاوز أي نوع من الأنواع دي، فأنا حققت **Unauthorized Access**.
 
-دلوقتي عرفنا إيه اللي التطبيق بيحاول يحميه...
-
-لكن إزاي المهاجم بيكسر الحماية دي؟
-
-تعالى نشوف أشهر السيناريوهات.
+وفي بعض الحالات ده بيؤدي إلى **Privilege Escalation**.
 
 ---
 
-# 1. Vertical Privilege Escalation
+# 🚨 Common Broken Access Control Scenarios
 
-أبسط مثال على **Vertical Privilege Escalation** إن المطور ينسى يحمي صفحة خاصة بالأدمن.
+دلوقتي عرفنا إيه اللي التطبيق بيحاول يحميه.
 
-في الحالة دي، أي مستخدم عادي يقدر يوصل للصفحة بمجرد معرفة الرابط.
+السؤال بقى...
 
-أحيانًا بيكون الرابط سهل التوقع، وأحيانًا بيكون غير متوقع لكنه بيتسرب من أماكن تانية زي:
+**إزاي التطبيقات بتفشل في تطبيق الـ Access Control؟**
 
-- `robots.txt`
-- `sitemap.xml`
-- HTML Source Code
-- JavaScript Files
-- Burp Suite Sitemap
+تعالى نمشي مع أشهر السيناريوهات، بنفس الترتيب اللي هنقابلها في اللابات.
 
-ولو مقدرناش نلاقيه بالطرق دي، ممكن نستخدم **Content Discovery** أو **Fuzzing** باستخدام أدوات زي **FFUF**.
+---
 
-### Example
+# 🚪 1. Unprotected Administrative Functionality
+
+أبسط سيناريو...
+
+المطور ينسى يحمي صفحة الأدمن أصلاً.
+
+لو عرفت الـ URL...
+
+هتدخل مباشرة.
+
+أحيانًا الرابط بيكون سهل:
 
 ```text
-https://insecure-website.com/admin
+/admin
 ```
 
-لو الصفحة اتفتحت بدون أي تحقق من صلاحيات المستخدم، فدي تعتبر **Vertical Privilege Escalation**، لأن المستخدم العادي قدر يوصل لوظيفة مخصصة لمستخدم صاحب صلاحيات أعلى.
+وأحيانًا بيكون غير متوقع:
 
-لكن حتى لو الرابط كان **Unpredictable**، فمجرد معرفة الرابط لا يعني إن المستخدم المفروض يقدر يستخدمه.
+```text
+/admin-x83kd92
+```
 
-التطبيق لازم يطبق **Server-side Authorization** على كل Request، بغض النظر عن مدى صعوبة تخمين الـ URL.
+لكن حتى لو كان غير متوقع، ممكن تلاقيه أثناء الـ Recon من أماكن زي:
 
-### Key Idea
+- 📄 robots.txt
+- 🗺️ sitemap.xml
+- 🌐 HTML Source Code
+- 📜 JavaScript Files
+- 🕸️ Burp Suite Sitemap
 
-> معرفة الـ Endpoint لا تعني امتلاك صلاحية استخدامه. الأمان الحقيقي بيعتمد على **Server-side Authorization**، مش على إخفاء أو صعوبة تخمين الـ URL.
+ولو ملقيناهوش...
+
+نستخدم أدوات **Content Discovery** زي **FFUF**.
+
+### 💡 Example
+
+```http
+GET /admin
+```
+
+لو الصفحة اتفتحت بدون أي Authorization Check...
+
+فدي تعتبر Broken Access Control.
+
+> ✅ **Key Idea**
+>
+> معرفة الـ Endpoint لا تعني امتلاك صلاحية استخدامه.
+>
+> لازم كل Request يتعمله **Server-side Authorization Check**.
 
 ---
 
-لكن ممكن التطبيق يكون بالفعل بيمنع أي مستخدم عادي من الوصول إلى الـ **Admin Endpoint** حتى لو كان عارف الـ URL.
+# 🍪 2. Client-Controlled Authorization
+
+نفترض إن التطبيق بقى بيمنع الوصول للـ Admin Panel.
 
 السؤال هنا...
 
-**إزاي السيرفر بيحدد إن المستخدم ده يمتلك صلاحيات الأدمن؟**
+> 🤔 إزاي السيرفر بيعرف إن المستخدم ده Admin أو User؟
 
-في بعض التطبيقات، السيرفر بيعتمد على بيانات بيبعتها المستخدم مع كل **HTTP Request** لتحديد صلاحياته، زي:
+بعض التطبيقات للأسف بتعتمد على بيانات جاية من المستخدم نفسه، زي:
 
-- Cookies
-- URL Parameters
-- Body Parameters
-- HTTP Headers
-- Hidden Form Fields
-
-على سبيل المثال، قد يرسل المتصفح الـ Cookie التالية مع كل Request:
-
-```text
-Cookie: Admin=false
-```
-
-لو اعتمد التطبيق على قيمة الـ Cookie دي مباشرة لتحديد صلاحيات المستخدم، فالمهاجم يقدر يعدلها قبل إرسال الـ Request.
+- 🍪 Cookies
+- 🔗 URL Parameters
+- 📝 Body Parameters
+- 🧾 Hidden Form Fields
+- 📨 HTTP Headers
 
 مثلاً:
 
-```text
-Cookie: Admin=true
-```
-
-لو أدى تغيير قيمة الـ Cookie فقط إلى منح المستخدم صلاحيات الأدمن، فدي تعتبر **Broken Access Control**.
-
-سبب المشكلة هنا إن التطبيق اعتمد على **Client-Controlled Data** لاتخاذ قرار الـ **Authorization** بدون التحقق من صحة صلاحيات المستخدم على الـ Server.
-
-المفروض إن السيرفر مع كل Request يعمل **Server-side Authorization Check** ويتأكد إن المستخدم الحالي يمتلك فعلًا الصلاحيات المطلوبة، بدل ما يثق في قيمة جاية من الـ Client.
-
-لأن أي بيانات بيبعتها المستخدم تعتبر **User-Controlled Data**، وبالتالي يمكن تعديلها بسهولة باستخدام أدوات مثل **Burp Suite**.
-
-### Example
-
-Before manipulation:
-
-```text
+```http
 Cookie: Admin=false
 ```
 
-After manipulation:
+لو غيرناها إلى:
 
-```text
+```http
 Cookie: Admin=true
 ```
 
-إذا أدى تغيير قيمة الـ Cookie فقط إلى منح المستخدم صلاحيات الأدمن، فده دليل على إن التطبيق بيعتمد على بيانات يمكن للمستخدم التحكم فيها لاتخاذ قرار الـ Authorization.
+والتطبيق سمح بالدخول...
 
-### Key Idea
+يبقى التطبيق بيثق في بيانات يقدر المستخدم يعدلها.
 
-> لا تعتمد أبدًا على أي بيانات قادمة من الـ Client لاتخاذ قرارات الـ Authorization. لازم تحديد صلاحيات المستخدم والتحقق منها يتم دائمًا على الـ Server.
+ونفس الفكرة تنطبق على أي Security-Sensitive Parameter.
 
----
-
-لكن مش شرط البيانات الحساسة تكون جاية من المستخدم في الأصل.
-
-أحيانًا السيرفر نفسه هو اللي بينشئ **Parameters** خاصة بالمستخدم ويرجعها داخل الـ HTTP Response، مثل:
-
-- `roleId`
-- `isAdmin`
-- `accountType`
-
-السؤال هنا...
-
-**هل السيرفر بيتحقق من أي محاولة لتعديل القيم دي؟**
-
-على سبيل المثال، قد يحتوي رد السيرفر على:
+مثلاً:
 
 ```json
 {
-    "email": "user@example.com",
-    "roleId": 1
+    "email":"user@example.com",
+    "roleId":1
 }
 ```
 
-كمهاجم، أول سؤال ممكن أسأله هو:
-
-> **هل السيرفر هيقبل لو أنا بعتله نفس الـ Parameter؟**
-
-أقدر أكتشف النوع ده من المشاكل أثناء مراجعة الـ HTTP Traffic من خلال:
-
-- مقارنة الـ Requests بالـ Responses.
-- البحث عن أي Parameters حساسة تظهر في الـ Responses.
-- تجربة إضافة Parameters غير موجودة أصلًا في الـ Request.
-- ملاحظة إذا كان السيرفر يقبلها أو يرفضها.
-
-إذا قبل السيرفر الـ Parameter بدون أي اعتراض، أقدر أختبر تعديل قيمته، مثل:
+نجرب نبعتها في الـ Request:
 
 ```json
 {
-    "email": "user@example.com",
-    "roleId": 2
+    "email":"user@example.com",
+    "roleId":2
 }
 ```
 
-إذا أدى تغيير القيمة إلى تعديل صلاحيات المستخدم، فده معناه إن التطبيق بيثق في **Client-Controlled Data** لاتخاذ قرارات خاصة بالـ Authorization.
+لو بقينا Admin...
 
-### Key Idea
+يبقى التطبيق بيعتمد على **Client-Controlled Data** في اتخاذ قرار الـ Authorization.
 
-> أي **Security-Sensitive Parameter** يظهر في الـ HTTP Response يستحق المراجعة والاختبار. إذا قبل التطبيق نفس الـ Parameter من الـ Client بدون تحقق مناسب، فقد يسمح للمهاجم بتعديل بيانات حساسة مثل صلاحيات المستخدم.
-
----
-
-لكن مش شرط المشكلة تكون في **Cookies** أو **Parameters**.
-
-ممكن أسأل نفسي سؤال تاني...
-
-> **هو التطبيق بيطبق الـ Authorization على الـ HTTP Method نفسها؟**
-
-بعض التطبيقات بتعمل الـ Authorization لو الـ Request جاي بـ:
-
-```text
-POST
-```
-
-لكن متطبقوش لو نفس الـ Request اتبعت بـ:
-
-```text
-GET
-```
-
-أو أي **HTTP Method** تانية.
-
-علشان كده، لو معايا Request خاصة بوظيفة إدارية، ومنفعش أنفذها كمستخدم عادي، فمن الطبيعي أجرب أغير الـ HTTP Method وأشوف هل سلوك التطبيق هيتغير ولا لأ.
-
-لو مجرد تغيير الـ Method خلّى الـ Request يشتغل، فده معناه إن التطبيق بيربط الـ Access Control بالـ HTTP Method، بدل ما يحمي الـ Functionality نفسها.
-
-### Key Idea
-
-> الـ Access Control لازم يتحط على الـ Functionality نفسها، مش على طريقة إرسال الـ Request.
+> ✅ **Key Idea**
+>
+> أي بيانات جاية من الـ Client تعتبر User-Controlled Data.
+>
+> وبالتالي لا يجوز الاعتماد عليها في اتخاذ قرارات الـ Authorization.
 
 ---
 
-لكن برضو... مش شرط المشكلة تكون في الـ HTTP Method.
+# 🔀 3. URL-based Access Control
 
-ممكن التطبيق يكون بيطبق الـ Authorization على الـ URL الظاهر في الـ Request، لكن بعد كده السيرفر يغير الـ Path داخليًا قبل ما يوصل للتطبيق.
+طيب...
 
-السؤال هنا...
+لو غيرنا الـ Cookies والـ Parameters ولسه مفيش حاجة اشتغلت...
 
-> **إزاي أختبر السيناريو ده؟**
+ممكن أسأل نفسي سؤال مختلف.
 
-لو لقيت إن الـ Endpoint موجود لكنه بيرجع:
+> 🤔 هل التطبيق بيطبق الـ Authorization على الـ URL نفسه؟
 
-```text
-403 Forbidden
-```
+بعض التطبيقات بتشتغل خلف **Reverse Proxy** أو Web Server زي:
 
-وجربت تغير الـ Cookies والـ Parameters والـ HTTP Method ومفيش حاجة نفعت، فممكن أفكر إن التطبيق شغال خلف **Reverse Proxy** أو بيستخدم **URL Rewriting**.
+- Apache
+- Nginx
 
-في الحالة دي، أقدر أجرب بعض الـ Rewrite Headers، زي:
+والسيرفرات دي ممكن تستخدم آلية اسمها **URL Rewriting**.
+
+يعني قبل ما الـ Request يوصل للتطبيق...
+
+الـ Path بيتغير.
+
+وفي بعض البيئات بيتبعت الـ Path الجديد داخل Headers زي:
 
 ```http
 X-Original-URL: /admin
@@ -256,44 +236,145 @@ X-Original-URL: /admin
 X-Rewrite-URL: /admin
 ```
 
----
+فلو التطبيق وثق في الـ Headers دي وهي جاية من المستخدم...
 
-## يعني إيه Rewrite Headers؟
+هيعتبر إن الـ Request رايح للـ Path الجديد.
 
-بعض السيرفرات أو الـ **Reverse Proxies** زي **Apache** و **Nginx** بتستخدم آلية اسمها **URL Rewriting**.
-
-فكرة الـ URL Rewriting إنها تغير شكل الـ URL أو الـ Path قبل ما الطلب يوصل للتطبيق.
-
-أحيانًا بيكون الهدف تنظيم الـ Routing.
-
-وأحيانًا تحسين شكل الـ URLs.
-
-وأحيانًا إخفاء المسارات الداخلية للتطبيق.
-
-وفي بعض الحالات بيتم تمرير الـ Path الأصلي داخل Header زي:
+مثلاً:
 
 ```http
+GET /
+
 X-Original-URL: /admin
 ```
 
 أو
 
 ```http
-X-Rewrite-URL: /admin
+POST /
+
+X-Original-URL: /admin/delete
 ```
 
-بعدها التطبيق يقرأ قيمة الـ Header ويعتبرها هي الـ Resource المطلوب الوصول ليها.
+ولو التطبيق اعتمد على الـ Header أثناء تطبيق الـ Authorization...
 
-المشكلة بتحصل لما التطبيق يثق في الـ Headers دي وهي جاية من الـ Client، ويستخدمها أثناء تطبيق الـ Authorization.
+ممكن نتجاوز الـ URL-based Access Control بالكامل.
 
-ساعتها المهاجم يقدر يضيف Header زي:
+---
+
+### 🔎 فيه سيناريو تاني قريب من ده
+
+أحيانًا المشكلة مبتكونش في الـ Headers...
+
+لكن في طريقة السيرفر لمطابقة الـ URL.
+
+بعض السيرفرات أو الـ Frameworks بتعتبر إن المسارات دي كلها واحدة:
+
+```text
+/admin
+```
+
+```text
+/admin/
+```
+
+```text
+/ADMIN
+```
+
+```text
+/admin.anything
+```
+
+لكن طبقة الـ Access Control ممكن تعتبرهم مختلفين.
+
+في الحالة دي، مجرد تغيير بسيط في شكل الـ URL ممكن يخلي الـ Request يعدي بدون تطبيق الصلاحيات.
+
+علشان كده، أثناء الاختبار جرّب دائمًا:
+
+- إضافة `/` في آخر الـ Path.
+- تغيير حالة الأحرف (Uppercase / Lowercase).
+- إضافة File Extension.
+- تجربة أشكال مختلفة لنفس الـ Endpoint.
+
+> ✅ **Key Idea**
+>
+> متفترضش إن كل أجزاء التطبيق بتفسر الـ URL بنفس الطريقة.
+>
+> اختلاف بسيط في مطابقة المسار ممكن يؤدي إلى تجاوز الـ Access Control.
+
+---
+
+# 🔄 4. Method-based Access Control
+
+طيب...
+
+لو جربنا كل اللي فات ولسه مفيش حاجة اشتغلت...
+
+ممكن يكون التطبيق بيربط الـ Authorization بالـ HTTP Method نفسها.
+
+يعني مثلاً...
+
+الـ Request دي:
 
 ```http
-X-Original-URL: /admin
+POST /admin-roles
 ```
 
-ولو التطبيق اعتمد عليه، ممكن يتجاوز الـ URL-Based Access Control.
+محمية.
 
-### Key Idea
+لكن نفس الـ Endpoint لو بعتناه بـ:
 
-> لو التطبيق بيثق في Rewrite Headers اللي جاية من الـ Client، فالمهاجم ممكن يستخدمها لتجاوز الـ URL-Based Access Control.
+```http
+GET /admin-roles
+```
+
+يتنفذ عادي.
+
+في الحالة دي المشكلة مش في:
+
+- ❌ الـ Endpoint
+- ❌ الـ Session
+- ❌ الـ Cookies
+- ❌ الـ Parameters
+
+المشكلة إن التطبيق بيطبق الـ Authorization على POST فقط.
+
+فمجرد تغيير الـ HTTP Method يسمح بتنفيذ نفس العملية.
+
+> ✅ **Key Idea**
+>
+> الـ Access Control لازم يحمي الـ Functionality نفسها، مش طريقة إرسال الـ Request.
+
+---
+
+# 🚀 What's Next?
+
+السيناريوهات اللي فاتت كلها كانت أمثلة على **Vertical Privilege Escalation**.
+
+لكن **Broken Access Control** أوسع من كده بكتير.
+
+في اللابات الجاية هنغطي:
+
+- ↔️ Horizontal Privilege Escalation
+- 🆔 Insecure Direct Object References (IDOR)
+- 🔄 Context-dependent Access Control
+- 🧩 Multi-step Workflow Bypass
+- 🎯 وغيرها من سيناريوهات Broken Access Control.
+
+---
+
+> 🧠 **Think Like an Attacker**
+>
+> لما تلاقي Endpoint محمي، متفترضش إن مفيش ثغرة.
+>
+> اسأل نفسك دايمًا:
+>
+> - هل الـ URL نفسه محمي؟
+> - هل التطبيق بيعتمد على Cookies أو Parameters؟
+> - هل فيه Headers ممكن تغير قرار الـ Authorization؟
+> - هل فيه اختلاف في طريقة تفسير الـ URL؟
+> - هل تغيير الـ HTTP Method هيغير سلوك التطبيق؟
+> - هل فيه أي جزء من الـ Request يقدر يأثر على قرار الـ Authorization؟
+>
+> التفكير بالطريقة دي هيخليك تكتشف نسبة كبيرة جدًا من ثغرات **Broken Access Control**.

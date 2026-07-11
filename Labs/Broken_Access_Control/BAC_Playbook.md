@@ -108,10 +108,31 @@ Replay the same request using different HTTP methods such as:
 
 ### Does authorization depend on the request path?
 
-If the endpoint returns `401` or `403`, test rewrite-related headers when appropriate:
+If the endpoint returns `401` or `403`, test whether the application trusts alternative ways of identifying the requested resource.
+
+Test rewrite-related headers when appropriate:
 
 - `X-Original-URL`
 - `X-Rewrite-URL`
+
+Also test for URL-matching discrepancies, such as:
+
+- Different letter casing
+- Trailing slash (`/`)
+- File extensions (e.g. `.json`, `.css`, `.anything`)
+- Alternative path representations
+- URL encoding (when applicable)
+
+Examples:
+
+```text
+/admin
+/ADMIN
+/admin/
+/admin.anything
+```
+
+If different URL representations reach the same functionality but produce different authorization results, the application may be vulnerable to Broken Access Control.
 
 ---
 
