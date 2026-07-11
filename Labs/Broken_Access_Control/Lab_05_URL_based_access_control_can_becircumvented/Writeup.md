@@ -208,6 +208,7 @@ To prevent this issue:
 
 - Never trust client-controlled data for authorization decisions.
 - URL rewrite headers should never be trusted when enforcing access control.
+- Authorization checks must be applied to the final rewritten request path, not only the original request.
 - Authorization decisions must always be enforced on the server.
 - Sensitive functionality must always be protected by server-side authorization checks.
 - Reverse proxy headers should only be accepted from trusted infrastructure.

@@ -185,3 +185,4 @@ To prevent this issue:
 - Cookies, headers, hidden fields, and request parameters can all be manipulated by attackers.
 - User roles should always be validated on the server.
 - Sensitive functionality must always be protected by server-side authorization checks.
+- Server responses may reveal hidden parameters that can later be reused in requests.

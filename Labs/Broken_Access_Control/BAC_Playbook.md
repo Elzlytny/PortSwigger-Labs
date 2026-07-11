@@ -4,16 +4,16 @@ This document describes the workflow I follow when assessing web applications du
 
 ---
 
-## 1. Initial Reconnaissance
+# 1. Initial Reconnaissance
 
 - Browse the application manually.
 - Understand the application's functionality and business logic.
-- Identify user roles and available features.
+- Identify user roles and available functionality.
 - Map the application's attack surface.
 
 ---
 
-## 2. Passive Discovery
+# 2. Passive Discovery
 
 - Review the HTML source code.
 - Inspect JavaScript files.
@@ -26,28 +26,30 @@ This document describes the workflow I follow when assessing web applications du
 
 ---
 
-## 3. HTTP Traffic Analysis
+# 3. HTTP Traffic Analysis
 
 - Intercept traffic using Burp Suite.
 - Compare HTTP requests with their corresponding responses.
 - Analyze:
-  - Request parameters
   - Cookies
-  - HTTP headers
+  - Parameters
+  - HTTP Headers
   - Authentication mechanisms
   - Authorization behavior
 - Look for:
   - Hidden endpoints
+  - Sensitive functionality
   - Security-sensitive parameters
   - Client-controlled data
   - Role identifiers
-  - Privileged functionality
+  - User identifiers
+  - Administrative requests
 
 ---
 
-## 4. Attack Surface Expansion
+# 4. Attack Surface Expansion
 
-If no attack surface is identified, perform additional discovery:
+If no attack surface is identified:
 
 - Content Discovery
 - Directory Enumeration (FFUF)
@@ -57,30 +59,96 @@ If no attack surface is identified, perform additional discovery:
 
 ---
 
-## 5. Vulnerability Assessment
+# 5. Authorization Testing
 
-Test for common Broken Access Control issues, including:
+For every privileged endpoint or action, ask the following questions:
 
-- Vertical Privilege Escalation
-- Horizontal Privilege Escalation
-- Context-dependent Access Control
-- Insecure Direct Object References (IDOR)
-- Client-controlled authorization data
-- Missing server-side authorization checks
+### Is the endpoint directly accessible?
+
+- Try accessing privileged URLs directly.
+- Test predictable and discovered endpoints.
 
 ---
 
-## 6. Exploitation
+### Does authorization depend on client-controlled data?
+
+Test whether modifying any of the following changes the application's behavior:
+
+- Cookies
+- URL Parameters
+- Body Parameters
+- HTTP Headers
+- Hidden Form Fields
+
+---
+
+### Does the application trust sensitive parameters?
+
+- Compare Requests with Responses.
+- Look for parameters such as:
+  - `roleId`
+  - `isAdmin`
+  - `accountType`
+- Try adding missing parameters.
+- Modify existing parameter values.
+
+---
+
+### Does authorization depend on the HTTP method?
+
+Replay the same request using different HTTP methods such as:
+
+- GET
+- POST
+- PUT
+- PATCH
+- DELETE
+
+---
+
+### Does authorization depend on the request path?
+
+If the endpoint returns `401` or `403`, test rewrite-related headers when appropriate:
+
+- `X-Original-URL`
+- `X-Rewrite-URL`
+
+---
+
+### Can another user's resources be accessed?
+
+Test for Horizontal Privilege Escalation by modifying:
+
+- User IDs
+- Object IDs
+- Account numbers
+- UUIDs
+- Other resource identifiers
+
+---
+
+### Does the application enforce business rules correctly?
+
+Test whether application workflows can be bypassed by:
+
+- Skipping steps
+- Repeating actions
+- Changing the order of requests
+
+---
+
+# 6. Exploitation
 
 - Develop a hypothesis.
+- Change one request component at a time.
 - Verify the vulnerability.
-- Assess the impact.
+- Assess its impact.
 - Collect supporting evidence.
 - Confirm successful exploitation.
 
 ---
 
-## 7. Documentation
+# 7. Documentation
 
 For every completed lab:
 
@@ -89,10 +157,10 @@ For every completed lab:
 - Write a professional vulnerability report.
 - Capture screenshots for every significant step.
 - Record key lessons learned.
-- Update the knowledge base when a new concept or attack pattern is identified.
+- Update the playbook when a new testing technique or attack pattern is discovered.
 
 ---
 
-## Continuous Improvement
+# Continuous Improvement
 
-This methodology is a living document and will continue to evolve as I learn new attack techniques, tools, and methodologies throughout my web application security journey.
+This playbook is a living document and will continue to evolve as I learn new attack techniques, tools, and methodologies throughout my web application security journey.

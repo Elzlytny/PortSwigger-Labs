@@ -31,7 +31,7 @@ Before attempting to solve the lab, I followed my standard web application asses
 4. Review the HTML source code and JavaScript files.
 5. Check common discovery files.
 6. Inspect the Burp Suite Sitemap.
-7. Review HTTP requests and responses.
+7. Review HTTP requests and their corresponding responses.
 8. Analyze cookies, headers, and request parameters.
 9. If nothing is found, perform content discovery using FFUF.
 
@@ -184,4 +184,5 @@ To prevent this issue:
 - Never trust client-controlled data for authorization decisions.
 - Cookies, headers, hidden fields, and request parameters can all be manipulated by attackers.
 - User roles should always be validated on the server.
+- User roles should never be stored in client-controlled data.
 - Sensitive functionality must always be protected by server-side authorization checks.

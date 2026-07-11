@@ -4,7 +4,7 @@
 
 - **Category:** Broken Access Control
 - **Subcategory:** Vertical Privilege Escalation
-- **Severity:** High
+- **Severity:** Critical
 
 ---
 

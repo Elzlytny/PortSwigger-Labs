@@ -28,7 +28,7 @@ Before attempting to solve the lab, I followed my standard web application asses
 2. Understand the application's functionality and business logic.
 3. Intercept traffic using Burp Suite.
 4. Review the HTML source code.
-5. Review HTTP requests and responses.
+5. Review HTTP requests and their corresponding responses.
 6. Inspect the Burp Suite Sitemap.
 7. Check common discovery files.
 8. If nothing is found, perform content discovery using FFUF.
@@ -39,7 +39,7 @@ Before attempting to solve the lab, I followed my standard web application asses
 
 After exploring the application manually, I reviewed the application's HTML source code.
 
-During the review, I identified a reference to an administrative endpoint.
+During the review, I discovered a reference to an administrative endpoint that was not accessible through the application's user interface.
 
 ---
 
