@@ -160,7 +160,9 @@ This indicates that the endpoint fails to enforce both:
 - Authentication
 - Object-level authorization
 
-As a result, anyone who obtains a valid user UUID can access another user's account without logging in.
+Although unauthenticated users are not provided with a direct navigation link to the endpoint, it remains directly accessible if its URL is known.
+
+As a result, anyone who obtains a valid user UUID and knows the `/my-account` endpoint can access another user's account without logging in.
 
 ---
 
