@@ -49,57 +49,67 @@ Before attempting to solve the lab, I followed my standard web application asses
 
 After opening the login page, I manually tested several login attempts using random usernames and passwords.
 
-During these attempts, I noticed that the application always returned the message:
+During these attempts, I noticed that the application always returned:
 
 > **Invalid username**
 
-This suggested that the application first validates whether the username exists before checking the password.
+This behavior suggested that the application validates whether the username exists before checking the password.
 
-Based on this observation, I hypothesized that valid usernames might produce a different server response.
+Based on this observation, I hypothesized that supplying a valid username would produce a different server response.
 
 ---
 
 ## Discovery and Verification
 
-### Step 1 – Observe the Default Login Response
+### Step 1 – Open the Login Page
+
+Navigate to the application's login page.
+
+**Screenshot 1:** Login Page.
+
+![Step 1](Screenshots/01_Login_Page.png)
+
+---
+
+### Step 2 – Observe the Default Authentication Response
 
 Submit a login request using a random username and password.
 
-The application returns:
+The application responds with:
 
 > Invalid username
 
-**Screenshot 1:** Invalid Username Response.
+**Screenshot 2:** Invalid Username Response.
 
-![Step 1](Screenshots/01_Invalid_Username_Response.png)
+![Step 2](Screenshots/02_Invalid_Username_Response.png)
 
 ---
 
-### Step 2 – Enumerate Valid Usernames
+### Step 3 – Enumerate Valid Usernames
 
 Using Burp Intruder, send login requests with usernames from the provided username list while keeping the password constant.
 
-While reviewing the Intruder results, one request produced a different response length.
+While reviewing the Intruder results, most responses returned:
 
-Normal responses:
+- HTTP Status: **200**
+- Response Length: **3352**
 
-- Status Code: **200**
-- Length: **3352**
+One response returned:
 
-One response:
+- HTTP Status: **200**
+- Response Length: **3354**
 
-- Status Code: **200**
-- Length: **3354**
+This difference suggested that the supplied username was valid.
 
-**Screenshot 2:** Intruder Username Enumeration.
+**Screenshot 3:** Username Enumeration.
 
-![Step 2](Screenshots/02_Username_Enumeration.png)
+![Step 3](Screenshots/03_Username_Enumeration.png)
 
 ---
 
-### Step 3 – Verify the Valid Username
+### Step 4 – Verify the Valid Username
 
-Replay the request with the discovered username in Burp Repeater.
+Replay the identified request in Burp Repeater.
 
 Instead of returning:
 
@@ -111,73 +121,73 @@ the application responds with:
 
 This confirms that the username exists.
 
-**Screenshot 3:** Valid Username Confirmation.
+**Screenshot 4:** Invalid Password Response.
 
-![Step 3](Screenshots/03_Valid_Username_Confirmation.png)
+![Step 4](Screenshots/04_Invalid_Password_Response.png)
 
 ---
 
-### Step 4 – Brute Force the Password
+### Step 5 – Brute Force the Password
 
 Now that the valid username has been identified, use Burp Intruder again.
 
 Keep the username fixed and test passwords from the provided password list.
 
-During the attack, one request returned a significantly different response:
+During the attack, one request returned:
 
-- Status Code: **302**
-- Length: **188**
+- HTTP Status: **302**
+- Response Length: **188**
 
-Unlike previous responses, this one also included:
+Unlike previous responses, the server also returned:
 
-- Session Cookie
-- Location Header
+- A new authenticated session cookie.
+- A redirect to the authenticated account.
 
-indicating successful authentication.
+These indicators confirmed successful authentication.
 
-**Screenshot 4:** Password Brute Force Result.
+**Screenshot 5:** Password Brute Force.
 
-![Step 4](Screenshots/04_Password_Brute_Force.png)
+![Step 5](Screenshots/05_Password_Brute_Force.png)
 
 ---
 
-### Step 5 – Inspect the Successful Authentication Response
+### Step 6 – Inspect the Successful Authentication Response
 
 Replay the successful request in Burp Repeater.
 
 The server responds with:
 
-- HTTP 302 Found
-- Set-Cookie
-- Location: `/my-account?id=oracle`
+- HTTP **302 Found**
+- `Set-Cookie`
+- `Location: /my-account?id=oracle`
 
-indicating that authentication has succeeded.
+confirming that authentication has succeeded.
 
-**Screenshot 5:** Successful Login Response.
+**Screenshot 6:** Login Success Request & Response.
 
-![Step 5](Screenshots/05_Successful_Login_Response.png)
-
----
-
-### Step 6 – Access the Victim Account
-
-Follow the redirect while including the issued session cookie.
-
-The application grants access to the victim's account.
-
-**Screenshot 6:** Victim Account.
-
-![Step 6](Screenshots/06_Victim_Account.png)
+![Step 6](Screenshots/06_Login_Success_Request_Response.png)
 
 ---
 
-### Step 7 – Verify Lab Completion
+### Step 7 – Verify Authenticated Access
+
+Follow the redirect while preserving the issued session cookie.
+
+The application grants access to the authenticated user's account.
+
+**Screenshot 7:** Authenticated Account.
+
+![Step 7](Screenshots/07_Authenticated_Account.png)
+
+---
+
+### Step 8 – Verify Lab Completion
 
 After successfully authenticating as the victim user, the lab is marked as solved.
 
-**Screenshot 7:** Lab Solved.
+**Screenshot 8:** Lab Completed.
 
-![Step 7](Screenshots/07_Lab_Solved.png)
+![Step 8](Screenshots/08_Lab_Completed.png)
 
 ---
 
@@ -205,7 +215,7 @@ An attacker first performs username enumeration by comparing authentication resp
 
 Once a valid username is discovered, the attacker launches a password brute-force attack against that single account.
 
-Eventually, the correct password is identified, allowing the attacker to authenticate successfully and gain access to the victim's account.
+After identifying the correct password, the attacker successfully authenticates and gains access to the victim's account.
 
 ---
 
@@ -213,7 +223,7 @@ Eventually, the correct password is identified, allowing the attacker to authent
 
 The application leaks account existence information through inconsistent authentication responses.
 
-Instead of returning a generic authentication failure message for all unsuccessful login attempts, the application reveals whether the username exists before validating the password.
+Instead of returning a generic authentication failure message for every unsuccessful login attempt, the application reveals whether the supplied username exists before validating the password.
 
 This behavior enables attackers to enumerate valid usernames.
 
@@ -225,8 +235,9 @@ Successful exploitation could allow an attacker to:
 
 - Enumerate valid user accounts.
 - Reduce the complexity of password brute-force attacks.
-- Compromise user accounts.
-- Facilitate credential stuffing attacks using leaked passwords.
+- Increase the effectiveness of password spraying attacks.
+- Improve the success rate of credential stuffing attacks.
+- Gain unauthorized access to legitimate user accounts.
 
 ---
 
@@ -235,17 +246,18 @@ Successful exploitation could allow an attacker to:
 To prevent this issue:
 
 - Return the same generic error message for all failed authentication attempts.
-- Ensure response bodies remain identical regardless of the failure reason.
-- Normalize response length and processing time.
+- Normalize response bodies.
+- Normalize response lengths.
+- Normalize response times.
 - Implement rate limiting.
-- Deploy account lockout policies.
-- Use MFA where appropriate.
+- Apply account lockout or progressive delays.
+- Deploy Multi-Factor Authentication (MFA) where appropriate.
 
 ---
 
 ## Key Takeaways
 
 - Authentication responses should never reveal whether a username exists.
-- Small differences in response messages, response length, or status codes can disclose sensitive information.
-- Username Enumeration often becomes the first stage of larger authentication attacks.
-- Always compare authentication responses carefully during testing.
+- Even small differences in authentication responses can disclose sensitive information.
+- Username Enumeration is often the first stage of larger authentication attacks.
+- Always compare response messages, response length, status codes, cookies, redirects, and response times during authentication testing.

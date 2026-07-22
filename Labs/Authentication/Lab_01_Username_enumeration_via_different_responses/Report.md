@@ -14,7 +14,7 @@ The application exposes different authentication responses depending on whether 
 
 By comparing authentication responses during login attempts, an attacker can enumerate valid usernames before launching password attacks.
 
-After identifying a valid username, a password brute-force attack was performed against that account, resulting in successful authentication and full access to the victim's account.
+After identifying a valid username, a password brute-force attack was performed against that account, resulting in successful authentication and access to the victim's account.
 
 This issue significantly increases the effectiveness of credential-based attacks such as password brute-force, password spraying, and credential stuffing.
 
@@ -30,9 +30,9 @@ This issue significantly increases the effectiveness of credential-based attacks
 
 ## Vulnerability Description
 
-The application returns different responses based on the validity of the supplied username.
+The application returns different authentication responses depending on whether the supplied username exists.
 
-When an invalid username is submitted, the server responds with:
+When an invalid username is submitted, the application responds with:
 
 ```
 Invalid username
@@ -46,13 +46,23 @@ Incorrect password
 
 This behavioral difference allows attackers to distinguish valid usernames from invalid ones without possessing valid credentials.
 
-Once a valid username is identified, attackers can focus password attacks on existing accounts instead of guessing both usernames and passwords simultaneously.
+Once a valid username is identified, password attacks can focus solely on existing accounts, significantly increasing the efficiency of credential-based attacks.
 
 ---
 
 ## Proof of Concept (PoC)
 
-### Step 1 – Observe the Default Authentication Response
+### Step 1 – Open the Login Page
+
+Navigate to the application's login page.
+
+**Screenshot 1:** Login Page.
+
+![Step 1](Screenshots/01_Login_Page.png)
+
+---
+
+### Step 2 – Observe the Default Authentication Response
 
 Submit a login request using an invalid username.
 
@@ -62,35 +72,35 @@ The application responds with:
 Invalid username
 ```
 
-**Screenshot 1:** Invalid Username Response.
+**Screenshot 2:** Invalid Username Response.
 
-![Step 1](Screenshots/01_Invalid_Username_Response.png)
+![Step 2](Screenshots/02_Invalid_Username_Response.png)
 
 ---
 
-### Step 2 – Enumerate Valid Usernames
+### Step 3 – Enumerate Valid Usernames
 
-Using Burp Intruder, submit login requests with usernames from the provided username list while keeping the password constant.
+Use Burp Intruder with the provided username wordlist while keeping the password constant.
 
-Most responses return:
+While reviewing the Intruder results, most responses returned:
 
 - HTTP Status: **200**
 - Response Length: **3352**
 
-One response returns:
+One response returned:
 
 - HTTP Status: **200**
 - Response Length: **3354**
 
-indicating a behavioral difference.
+This difference indicated that the supplied username was valid.
 
-**Screenshot 2:** Username Enumeration.
+**Screenshot 3:** Username Enumeration.
 
-![Step 2](Screenshots/02_Username_Enumeration.png)
+![Step 3](Screenshots/03_Username_Enumeration.png)
 
 ---
 
-### Step 3 – Verify the Valid Username
+### Step 4 – Verify the Valid Username
 
 Replay the identified request in Burp Repeater.
 
@@ -108,70 +118,66 @@ Incorrect password
 
 confirming that the username exists.
 
-**Screenshot 3:** Valid Username Confirmation.
+**Screenshot 4:** Invalid Password Response.
 
-![Step 3](Screenshots/03_Valid_Username_Confirmation.png)
+![Step 4](Screenshots/04_Invalid_Password_Response.png)
 
 ---
 
-### Step 4 – Perform Password Brute Force
+### Step 5 – Perform Password Brute Force
 
 Fix the discovered username and use Burp Intruder with the provided password list.
 
-One request returns:
+During the attack, one request returned:
 
 - HTTP Status: **302**
 - Response Length: **188**
 
-indicating successful authentication.
+Unlike previous responses, this request also returned a new authenticated session cookie and a redirect.
 
-**Screenshot 4:** Password Brute Force.
+**Screenshot 5:** Password Brute Force.
 
-![Step 4](Screenshots/04_Password_Brute_Force.png)
+![Step 5](Screenshots/05_Password_Brute_Force.png)
 
 ---
 
-### Step 5 – Inspect the Successful Authentication Response
+### Step 6 – Inspect the Successful Authentication Response
 
 Replay the successful request in Burp Repeater.
 
-The server responds with:
+The response returns:
 
-- HTTP 302 Found
-- Session Cookie
-- Redirect to:
-
-```
-/my-account?id=oracle
-```
+- HTTP **302 Found**
+- `Set-Cookie`
+- `Location: /my-account?id=oracle`
 
 confirming successful authentication.
 
-**Screenshot 5:** Successful Login Response.
+**Screenshot 6:** Login Success Request & Response.
 
-![Step 5](Screenshots/05_Successful_Login_Response.png)
-
----
-
-### Step 6 – Verify Authenticated Access
-
-Reuse the issued session cookie and access the account page.
-
-The application successfully authenticates the session and displays the victim user's account.
-
-**Screenshot 6:** Authenticated Account.
-
-![Step 6](Screenshots/06_Authenticated_Account.png)
+![Step 6](Screenshots/06_Login_Success_Request_Response.png)
 
 ---
 
-### Step 7 – Verify Lab Completion
+### Step 7 – Verify Authenticated Access
 
-The lab is successfully completed after authenticating as the victim user.
+Follow the redirect while preserving the issued session cookie.
 
-**Screenshot 7:** Lab Completed.
+The application grants access to the authenticated user's account.
 
-![Step 7](Screenshots/07_Lab_Completed.png)
+**Screenshot 7:** Authenticated Account.
+
+![Step 7](Screenshots/07_Authenticated_Account.png)
+
+---
+
+### Step 8 – Verify Lab Completion
+
+After successfully authenticating as the victim user, the lab is marked as solved.
+
+**Screenshot 8:** Lab Completed.
+
+![Step 8](Screenshots/08_Lab_Completed.png)
 
 ---
 
@@ -180,10 +186,11 @@ The lab is successfully completed after authenticating as the victim user.
 Successful exploitation could allow an attacker to:
 
 - Enumerate valid usernames.
+- Identify valid accounts for targeted attacks.
 - Reduce the complexity of password brute-force attacks.
-- Facilitate password spraying attacks.
-- Increase the effectiveness of credential stuffing attacks.
-- Compromise legitimate user accounts.
+- Increase the effectiveness of password spraying attacks.
+- Improve the success rate of credential stuffing attacks.
+- Gain unauthorized access to user accounts if valid credentials are discovered.
 
 ---
 
@@ -191,9 +198,9 @@ Successful exploitation could allow an attacker to:
 
 The application exposes account existence information by returning different authentication responses for invalid usernames and valid usernames with incorrect passwords.
 
-Authentication responses should never disclose whether a username exists.
+Instead of returning a generic authentication failure message for every unsuccessful login attempt, the application reveals whether the supplied username exists before validating the password.
 
-Instead, all failed authentication attempts should return identical responses regardless of the failure reason.
+This information disclosure enables attackers to enumerate valid usernames and significantly improves the effectiveness of subsequent password attacks.
 
 ---
 
@@ -201,20 +208,21 @@ Instead, all failed authentication attempts should return identical responses re
 
 To prevent this issue:
 
-- Return a generic error message such as:
+- Return a generic authentication error such as:
 
 ```
 Invalid username or password.
 ```
 
-for all failed authentication attempts.
+for every failed login attempt.
 
 Additionally:
 
 - Normalize HTTP status codes.
+- Normalize response bodies.
 - Normalize response lengths.
 - Normalize response times.
 - Implement rate limiting.
-- Apply account lockout or progressive delays after repeated failures.
+- Apply account lockout or progressive delays.
 - Deploy Multi-Factor Authentication (MFA) where appropriate.
-- Monitor authentication logs for enumeration and brute-force activity.
+- Monitor authentication logs for username enumeration and brute-force attacks.
